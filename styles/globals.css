@@ -121,37 +121,46 @@ body {
 
 
 /* =========================
-   MOBILE TILE FIX ONLY
+   MOBILE CARD FIX (REAL)
    ========================= */
 @media (max-width: 768px) {
 
-  .metric-tile {
-    padding: 14px 14px;
-    min-height: 96px;   /* slightly taller cards */
-    max-width: 100%;
+  /* Card container */
+  .metric-card {
+    padding: 16px 14px;
+    min-height: 110px;
   }
 
-  .metric-tile .metric-value {
-    font-size: clamp(20px, 6.5vw, 26px);
+  /* Center area holding the number */
+  .metric-body {
+    min-height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Main metric number */
+  .metric-number {
+    font-size: clamp(20px, 6vw, 26px);
     line-height: 1.15;
+    max-width: 100%;
     text-align: center;
     white-space: normal;
+    word-break: break-word;
   }
 
-  .metric-tile .metric-unit {
-    font-size: 0.6em;
-  }
-
-  .metric-tile .metric-label {
+  .metric-title {
     font-size: 13px;
     line-height: 1.3;
   }
 
-  .metric-tile .metric-updated {
+  .updated-text {
     font-size: 11px;
   }
 
-  .metric-tile .metric-delta {
+  .delta-good,
+  .delta-bad,
+  .delta-neutral {
     font-size: 12px;
   }
 }
