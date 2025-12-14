@@ -14,6 +14,7 @@ export default function MetricTile({
   deltaPct = null,
   deltaSign = null,
   lastUpdatedAt = null,
+  onClick, // ✅ ADD ONLY THIS
 }) {
   const [displayValue, setDisplayValue] = useState(value);
   const [flashClass, setFlashClass] = useState("");
@@ -135,7 +136,11 @@ export default function MetricTile({
       : "delta-neutral";
 
   return (
-    <div className={`metric-card relative ${flashClass}`}>
+    <div
+  className={`metric-card relative ${flashClass}`}
+  onClick={onClick}
+  style={{ cursor: onClick ? "pointer" : "default" }}
+>
 
       {/* Top-right delta */}
       <div style={{
