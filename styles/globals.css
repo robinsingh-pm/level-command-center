@@ -166,17 +166,16 @@ body {
 
 
 /* =========================
-   MOBILE TREND CHART — FULL WIDTH FIX
+   MOBILE TREND CHART — CARD WIDTH LOCK
    ========================= */
 @media (max-width: 768px) {
 
-  /* Kill page padding influence */
-  .gradient-bg {
-    padding-left: 0 !important;
-    padding-right: 0 !important;
+  /* Prevent horizontal scroll */
+  html, body {
+    overflow-x: hidden;
   }
 
-  /* Fullscreen overlay (trend modal) */
+  /* Fullscreen overlay (keep full screen, this is OK) */
   div[style*="position: fixed"][style*="inset: 0px"] {
     left: 0 !important;
     right: 0 !important;
@@ -188,24 +187,24 @@ body {
     justify-content: flex-start !important;
     align-items: flex-start !important;
 
-    padding-top: 72px;   /* keep header spacing */
+    padding-top: 72px;        /* header spacing */
     padding-left: 0 !important;
     padding-right: 0 !important;
   }
 
-  /* Actual chart container */
+  /* 🔑 Chart container = SAME WIDTH AS CARDS */
   div[style*="position: fixed"][style*="inset: 0px"] > div {
-    width: 100vw !important;
-    max-width: 100vw !important;
-    margin: 0 !important;
-    border-radius: 0 !important;
+    width: calc(100% - 36px) !important;   /* matches card width */
+    max-width: calc(100% - 36px) !important;
+    margin: 0 auto !important;              /* center */
+    border-radius: 14px !important;
 
     height: 280px !important;
     max-height: 280px !important;
     overflow: hidden;
   }
 
-  /* SVG / Canvas obey width */
+  /* SVG / Canvas obey container */
   div[style*="position: fixed"][style*="inset: 0px"] svg,
   div[style*="position: fixed"][style*="inset: 0px"] canvas {
     width: 100% !important;
