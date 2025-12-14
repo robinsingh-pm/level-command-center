@@ -84,35 +84,46 @@ body {
 }
 
 
-/* ===== MOBILE ONLY ===== */
+/* =========================
+   MOBILE TILE FIX ONLY
+   ========================= */
 @media (max-width: 768px) {
-  .page-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
+
+  /* Tile container spacing */
+  .metric-tile {
+    padding: 12px 14px;
+    min-height: auto;
   }
 
-  .header-right {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
+  /* Metric value (big number in center) */
+  .metric-tile .metric-value {
+    font-size: 28px;      /* ↓ from desktop size */
+    line-height: 1.2;
+    margin: 4px 0;
   }
 
-  .header-row {
-    width: auto;
-    gap: 8px;
+  /* Percent / unit next to value */
+  .metric-tile .metric-unit {
+    font-size: 16px;
   }
 
-  .header-row.secondary {
-    justify-content: flex-start;
+  /* Metric title */
+  .metric-tile .metric-label {
+    font-size: 13px;
+    line-height: 1.3;
   }
 
-  .tenant-text {
+  /* Updated timestamp */
+  .metric-tile .metric-updated {
+    font-size: 11px;
+  }
+
+  /* Delta (right side) */
+  .metric-tile .metric-delta {
     font-size: 12px;
-    white-space: nowrap;
   }
-
 }
+
 .title { font-size:1.15rem; font-weight:700; color: var(--toggle-fg); }
 .meta { color: var(--muted); font-size:0.9rem; }
 
