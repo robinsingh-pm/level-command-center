@@ -127,13 +127,13 @@ body {
 
   /* Card container */
   .metric-card {
-    padding: 16px 14px;
-    min-height: 110px;
+    padding: 18px 16px;
+    min-height: 140px;
   }
 
   /* Center area holding the number */
   .metric-body {
-    min-height: 72px;
+    min-height: 88px;
     display: flex;
     align-items: center;
     justify-content: center;
