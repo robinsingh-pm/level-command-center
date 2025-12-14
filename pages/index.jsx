@@ -84,6 +84,9 @@ export default function Home() {
   const [rows, setRows] = useState([]);
   const mountedRef = useRef(true);
   const [theme, setTheme] = useState("light");
+//Health filter dropdown state
+  const [healthFilter, setHealthFilter] = useState("health");
+//possible values: health | breached | watch
   const lastFetchRef = useRef(Date.now());
   const [trendOpen, setTrendOpen] = useState(false);
   const [selectedMetric, setSelectedMetric] = useState(null);
@@ -125,6 +128,23 @@ const healthStatus = (() => {
   return "healthy";
 })();
 
+// 🔽 Filter tiles based on Health dropdown (NEW)
+const filteredRows = rows.filter((r) => {
+  // Health → show all
+  if (healthFilter === "health") return true;
+
+  // Breached → bad + threshold crossed
+  if (healthFilter === "breached") {
+    return r.deltaSign === "bad" && r.shouldPlay;
+  }
+
+  // Watch → bad but threshold NOT crossed
+  if (healthFilter === "watch") {
+    return r.deltaSign === "bad" && !r.shouldPlay;
+  }
+
+  return true;
+});
 
   useEffect(() => {
     // load theme
@@ -405,56 +425,73 @@ if (id in currentMap) {
   return (
     <div className="gradient-bg">
 {showHeader && (
-  <header className="page-header">
-    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-      <div className="title">Level AI — Command Center</div>
-      <div style={{ color: "var(--muted)", fontSize: 13 }}>
-        Live wallboard
-      </div>
+<header className="page-header">
+  {/* LEFT SIDE */}
+  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+    <div className="title">Level AI — Command Center</div>
+    <div style={{ color: "var(--muted)", fontSize: 13 }}>
+      Live wallboard
+    </div>
+  </div>
+
+  {/* RIGHT SIDE */}
+  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+
+    {/* Health Filter Dropdown */}
+    <select
+      value={healthFilter}
+      onChange={(e) => setHealthFilter(e.target.value)}
+      className="btn"
+      style={{ padding: "8px 10px" }}
+    >
+      <option value="health">Health</option>
+      <option value="breached">Breached</option>
+      <option value="watch">Watch</option>
+    </select>
+
+    {/* Tenant shown ONLY ONCE */}
+    <div style={{ color: "var(--muted)", fontSize: 13 }}>
+      {payload ? `Tenant: ${payload.tenant}` : ""}
     </div>
 
-    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-      <div style={{ color: "var(--muted)", fontSize: 13 }}>
-        {payload ? `Tenant: ${payload.tenant}` : ""}
-      </div>
+    <button
+      onClick={toggleMute}
+      className="btn"
+      style={{ padding: "8px 10px" }}
+    >
+      {muted ? "🔇 Muted" : "🔊 Unmuted"}
+    </button>
 
-      <button
-        onClick={toggleMute}
-        className="btn"
-        style={{ padding: "8px 10px" }}
-      >
-        {muted ? "🔇 Muted" : "🔊 Unmuted"}
-      </button>
+    <button
+      onClick={toggleTheme}
+      className="btn"
+      style={{ padding: "8px 10px" }}
+    >
+      {theme === "dark" ? "🌙 Dark" : "☀️ Light"}
+    </button>
 
-      <button
-        onClick={toggleTheme}
-        className="btn"
-        style={{ padding: "8px 10px" }}
-      >
-        {theme === "dark" ? "🌙 Dark" : "☀️ Light"}
-      </button>
+    <button
+      onClick={() => setPanelOpen((s) => !s)}
+      className="btn"
+      style={{ padding: "8px 10px" }}
+    >
+      {panelOpen ? "Close Alerts" : "Alert Settings"}
+    </button>
 
-      <button
-        onClick={() => setPanelOpen((s) => !s)}
-        className="btn"
-        style={{ padding: "8px 10px" }}
-      >
-        {panelOpen ? "Close Alerts" : "Alert Settings"}
-      </button>
+    <button
+      className="btn"
+      onClick={() => {
+        setWallboard(true);
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen();
+        }
+      }}
+    >
+      🖥 Wallboard
+    </button>
+  </div>
+</header>
 
-      <button
-        className="btn"
-        onClick={() => {
-          setWallboard(true);
-          if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen();
-          }
-        }}
-      >
-        🖥 Wallboard
-      </button>
-    </div>
-  </header>
 )}
 
 {/* 🔴🟡🟢 HEALTH SUMMARY STRIP */}
@@ -489,7 +526,7 @@ if (id in currentMap) {
 
       <main className="metrics-grid-wrap">
         <div className="metrics-grid">
-          {rows.map((r) => (
+          {filteredRows.map((r) => (
             <MetricTile
               key={r.id}
               id={r.id}
