@@ -183,15 +183,16 @@ body {
     padding-right: 12px;
   }
 
-  /* Inner chart container */
-  div[style*="position: fixed"][style*="inset: 0px"] > div {
-    width: 100% !important;
-    max-width: 100% !important;
-    height: 280px !important;     /* ✅ mobile chart height */
-    max-height: 280px !important;
-    border-radius: 14px;
-    overflow: hidden;
-  }
+div[style*="position: fixed"][style*="inset: 0px"] > div {
+  width: 100vw !important;          /* 🔥 FULL MOBILE WIDTH */
+  max-width: 100vw !important;
+  margin-left: calc(-1 * env(safe-area-inset-left));
+  margin-right: calc(-1 * env(safe-area-inset-right));
+  height: 280px !important;
+  max-height: 280px !important;
+  border-radius: 0;                 /* mobile edge-to-edge */
+  overflow: hidden;
+}
 
   /* Force SVG / canvas to respect container */
   div[style*="position: fixed"][style*="inset: 0px"] svg,
