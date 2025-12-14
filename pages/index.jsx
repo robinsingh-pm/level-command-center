@@ -130,17 +130,18 @@ const healthStatus = (() => {
 
 // 🔽 Filter tiles based on Health dropdown (NEW)
 const filteredRows = rows.filter((r) => {
-  // Health → show all
-  if (healthFilter === "health") return true;
+  if (healthFilter === "all") return true;
 
-  // Breached → bad + threshold crossed
-  if (healthFilter === "breached") {
-    return r.deltaSign === "bad" && r.shouldPlay;
+  if (healthFilter === "healthy") {
+    return r.deltaSign === "good";
   }
 
-  // Watch → bad but threshold NOT crossed
   if (healthFilter === "watch") {
     return r.deltaSign === "bad" && !r.shouldPlay;
+  }
+
+  if (healthFilter === "breached") {
+    return r.deltaSign === "bad" && r.shouldPlay;
   }
 
   return true;
@@ -425,6 +426,7 @@ if (id in currentMap) {
   return (
     <div className="gradient-bg">
 {showHeader && (
+
 <header className="page-header">
   {/* LEFT SIDE */}
   <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -435,62 +437,58 @@ if (id in currentMap) {
   </div>
 
   {/* RIGHT SIDE */}
-  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+  <div className="header-right">
 
-    {/* Health Filter Dropdown */}
-    <select
-      value={healthFilter}
-      onChange={(e) => setHealthFilter(e.target.value)}
-      className="btn"
-      style={{ padding: "8px 10px" }}
-    >
-      <option value="health">Health</option>
-      <option value="breached">Breached</option>
-      <option value="watch">Watch</option>
-    </select>
+    <div className="header-row primary">
+<select
+  value={healthFilter}
+  onChange={(e) => setHealthFilter(e.target.value)}
+  className="btn"
+>
+  <option value="all">Health Status</option>
+  <option value="healthy">🟢 Healthy</option>
+  <option value="watch">🟡 Watch</option>
+  <option value="breached">🔴 Breached</option>
+</select>
 
-    {/* Tenant shown ONLY ONCE */}
-    <div style={{ color: "var(--muted)", fontSize: 13 }}>
-      {payload ? `Tenant: ${payload.tenant}` : ""}
+      <div className="tenant-text">
+        {payload ? `Tenant: ${payload.tenant}` : ""}
+      </div>
     </div>
 
-    <button
-      onClick={toggleMute}
-      className="btn"
-      style={{ padding: "8px 10px" }}
-    >
-      {muted ? "🔇 Muted" : "🔊 Unmuted"}
-    </button>
+    <div className="header-row secondary">
+      <button onClick={toggleMute} className="btn">
+        {muted ? "🔇" : "🔊"}
+      </button>
 
-    <button
-      onClick={toggleTheme}
-      className="btn"
-      style={{ padding: "8px 10px" }}
-    >
-      {theme === "dark" ? "🌙 Dark" : "☀️ Light"}
-    </button>
+      <button onClick={toggleTheme} className="btn">
+        {theme === "dark" ? "🌙" : "☀️"}
+      </button>
 
-    <button
-      onClick={() => setPanelOpen((s) => !s)}
-      className="btn"
-      style={{ padding: "8px 10px" }}
-    >
-      {panelOpen ? "Close Alerts" : "Alert Settings"}
-    </button>
+      <button
+        onClick={() => setPanelOpen((s) => !s)}
+        className="btn"
+      >
+        Alerts
+      </button>
 
-    <button
-      className="btn"
-      onClick={() => {
-        setWallboard(true);
-        if (!document.fullscreenElement) {
-          document.documentElement.requestFullscreen();
-        }
-      }}
-    >
-      🖥 Wallboard
-    </button>
+      <button
+        className="btn"
+        onClick={() => {
+          setWallboard(true);
+          if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen();
+          }
+        }}
+      >
+        🖥
+      </button>
+    </div>
+
   </div>
 </header>
+
+
 
 )}
 
