@@ -166,25 +166,38 @@ body {
 }
 
 /* =========================
-   MOBILE CHART FIX ONLY
+   MOBILE CHART HARD LOCK
    ========================= */
 @media (max-width: 768px) {
 
+  /* Chart outer section (page-level) */
+  .trend-section,
+  .chart-section,
+  .chart-container {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* Chart box itself */
   .trend-chart,
   .chart-wrapper {
     width: 100%;
-    height: 260px;          /* ✅ controlled height */
+    height: 260px;            /* ✅ HARD HEIGHT */
     max-height: 260px;
+    min-height: 260px;
     overflow: hidden;
+    position: relative;
   }
 
-  /* If chart uses SVG or canvas */
+  /* SVG / Canvas must obey parent */
   .trend-chart svg,
   .trend-chart canvas,
   .chart-wrapper svg,
   .chart-wrapper canvas {
     width: 100% !important;
     height: 100% !important;
+    max-height: 100% !important;
   }
 }
 
