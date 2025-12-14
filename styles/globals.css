@@ -121,86 +121,88 @@ body {
 
 
 /* =========================
-   MOBILE CARD FIX (REAL)
+   MOBILE TREND CHART — FULL WIDTH FIX
    ========================= */
 @media (max-width: 768px) {
 
-  /* Card container */
-  .metric-card {
-    padding: 18px 16px;
-    min-height: 140px;
+  /* Kill page padding influence */
+  .gradient-bg {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
   }
 
-  /* Center area holding the number */
-  .metric-body {
-    min-height: 88px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  /* Main metric number */
-  .metric-number {
-    font-size: clamp(20px, 6vw, 26px);
-    line-height: 1.15;
-    max-width: 100%;
-    text-align: center;
-    white-space: normal;
-    word-break: break-word;
-  }
-
-  .metric-title {
-    font-size: 13px;
-    line-height: 1.3;
-  }
-
-  .updated-text {
-    font-size: 11px;
-  }
-
-  .delta-good,
-  .delta-bad,
-  .delta-neutral {
-    font-size: 12px;
-  }
-}
-
-/* =========================
-   MOBILE TREND MODAL FIX
-   ========================= */
-@media (max-width: 768px) {
-
-  /* Prevent horizontal overflow on iOS */
-  html, body {
-    overflow-x: hidden;
-  }
-
-  /* Fullscreen overlay used by trend chart */
+  /* Fullscreen overlay (trend modal) */
   div[style*="position: fixed"][style*="inset: 0px"] {
+    left: 0 !important;
+    right: 0 !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    margin: 0 !important;
+
+    display: flex !important;
+    justify-content: flex-start !important;
     align-items: flex-start !important;
-    padding-top: 72px;     /* space below header */
-    padding-left: 12px;
-    padding-right: 12px;
+
+    padding-top: 72px;   /* keep header spacing */
+    padding-left: 0 !important;
+    padding-right: 0 !important;
   }
 
-div[style*="position: fixed"][style*="inset: 0px"] > div {
-  width: 100vw !important;          /* 🔥 FULL MOBILE WIDTH */
-  max-width: 100vw !important;
-  margin-left: calc(-1 * env(safe-area-inset-left));
-  margin-right: calc(-1 * env(safe-area-inset-right));
-  height: 280px !important;
-  max-height: 280px !important;
-  border-radius: 0;                 /* mobile edge-to-edge */
-  overflow: hidden;
-}
+  /* Actual chart container */
+  div[style*="position: fixed"][style*="inset: 0px"] > div {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
 
-  /* Force SVG / canvas to respect container */
+    height: 280px !important;
+    max-height: 280px !important;
+    overflow: hidden;
+  }
+
+  /* SVG / Canvas obey width */
   div[style*="position: fixed"][style*="inset: 0px"] svg,
   div[style*="position: fixed"][style*="inset: 0px"] canvas {
     width: 100% !important;
     height: 100% !important;
   }
 }
+
+/* =========================
+   MOBILE TREND CHART — FONT REDUCTION
+   ========================= */
+@media (max-width: 768px) {
+
+  /* Axis labels (time, values) */
+  .recharts-cartesian-axis text {
+    font-size: 10px !important;
+  }
+
+  /* Tooltip text */
+  .recharts-tooltip-wrapper {
+    font-size: 11px !important;
+  }
+
+  .recharts-default-tooltip {
+    font-size: 11px !important;
+    padding: 6px 8px !important;
+  }
+
+  /* Tooltip value emphasis */
+  .recharts-tooltip-item-value {
+    font-size: 12px !important;
+    font-weight: 600;
+  }
+
+  /* Trend title */
+  .trend-title,
+  .trend-header,
+  h2 {
+    font-size: 16px !important;
+    line-height: 1.3;
+  }
+}
+
 
 .title { font-size:1.15rem; font-weight:700; color: var(--toggle-fg); }
 .meta { color: var(--muted); font-size:0.9rem; }
