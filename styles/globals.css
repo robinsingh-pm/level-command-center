@@ -166,8 +166,7 @@ body {
 }
 
 /* =========================
-   MOBILE CHART HARD FIX
-   DO NOT TOUCH DESKTOP
+   MOBILE TREND MODAL FIX
    ========================= */
 @media (max-width: 768px) {
 
@@ -176,35 +175,29 @@ body {
     overflow-x: hidden;
   }
 
-  /* Chart section wrapper (outermost) */
-  .trend-section,
-  .chart-section,
-  .metrics-chart,
-  .chart-container {
-    width: 100%;
-    max-width: 100%;
+  /* Fullscreen overlay used by trend chart */
+  div[style*="position: fixed"][style*="inset: 0px"] {
+    align-items: flex-start !important;
+    padding-top: 72px;     /* space below header */
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  /* Inner chart container */
+  div[style*="position: fixed"][style*="inset: 0px"] > div {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 280px !important;     /* ✅ mobile chart height */
+    max-height: 280px !important;
+    border-radius: 14px;
     overflow: hidden;
   }
 
-  /* Chart card / modal content */
-  .trend-chart,
-  .chart-wrapper {
-    width: 100%;
-    height: 160px;        /* 🔒 LOCKED HEIGHT */
-    min-height: 160px;
-    max-height: 160px;
-    overflow: hidden;
-    position: relative;
-  }
-
-  /* Force chart itself to stay inside */
-  .trend-chart svg,
-  .trend-chart canvas,
-  .chart-wrapper svg,
-  .chart-wrapper canvas {
+  /* Force SVG / canvas to respect container */
+  div[style*="position: fixed"][style*="inset: 0px"] svg,
+  div[style*="position: fixed"][style*="inset: 0px"] canvas {
     width: 100% !important;
     height: 100% !important;
-    max-height: 100% !important;
   }
 }
 
