@@ -87,6 +87,9 @@ export default function Home() {
   const lastFetchRef = useRef(Date.now());
   const [trendOpen, setTrendOpen] = useState(false);
   const [selectedMetric, setSelectedMetric] = useState(null);
+  const [wallboard, setWallboard] = useState(false);
+  const [showHeader, setShowHeader] = useState(true);
+  const hideTimerRef = useRef(null);
 
   // sound & mute
   const mutedRef = useRef(false);
@@ -104,6 +107,24 @@ export default function Home() {
 
   // panel visibility
   const [panelOpen, setPanelOpen] = useState(false);
+
+// ---------------- HEALTH SUMMARY ----------------
+const healthStatus = (() => {
+  if (!rows.length) return "healthy";
+
+  const breached = rows.some(
+    (m) => m.deltaSign === "bad" && m.shouldPlay
+  );
+  if (breached) return "breached";
+
+  const watch = rows.some(
+    (m) => m.deltaSign === "bad"
+  );
+  if (watch) return "watch";
+
+  return "healthy";
+})();
+
 
   useEffect(() => {
     // load theme
@@ -128,6 +149,34 @@ export default function Home() {
     return () => { mountedRef.current = false; clearInterval(t); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+
+useEffect(() => {
+  if (!wallboard) {
+    setShowHeader(true);
+    return;
+  }
+
+  const resetTimer = () => {
+    setShowHeader(true);
+    if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+
+    hideTimerRef.current = setTimeout(() => {
+      setShowHeader(false);
+    }, 10000);
+  };
+
+  resetTimer();
+  window.addEventListener("mousemove", resetTimer);
+  window.addEventListener("keydown", resetTimer);
+
+  return () => {
+    window.removeEventListener("mousemove", resetTimer);
+    window.removeEventListener("keydown", resetTimer);
+    if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+  };
+}, [wallboard]);
+
 
   // persist thresholds to localStorage when changed
   useEffect(() => {
@@ -355,41 +404,88 @@ if (id in currentMap) {
 
   return (
     <div className="gradient-bg">
-      <header className="page-header">
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div className="title">Level AI — Command Center</div>
-          <div style={{ color: "var(--muted)", fontSize: 13 }}>Live wallboard</div>
-        </div>
+{showHeader && (
+  <header className="page-header">
+    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+      <div className="title">Level AI — Command Center</div>
+      <div style={{ color: "var(--muted)", fontSize: 13 }}>
+        Live wallboard
+      </div>
+    </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ color: "var(--muted)", fontSize: 13 }}>{payload ? `Tenant: ${payload.tenant}` : ""}</div>
+    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+      <div style={{ color: "var(--muted)", fontSize: 13 }}>
+        {payload ? `Tenant: ${payload.tenant}` : ""}
+      </div>
 
-          {/* Mute / Unmute */}
-          <button
-            onClick={toggleMute}
-            aria-label="Toggle mute"
-            className="btn"
-            style={{ padding: "8px 10px" }}
-          >
-            {muted ? "🔇 Muted" : "🔊 Unmuted"}
-          </button>
+      <button
+        onClick={toggleMute}
+        className="btn"
+        style={{ padding: "8px 10px" }}
+      >
+        {muted ? "🔇 Muted" : "🔊 Unmuted"}
+      </button>
 
-          {/* Theme toggle */}
-          <button
-            onClick={toggleTheme}
-            aria-label="Toggle theme"
-            className="btn"
-            style={{ padding: "8px 10px" }}
-          >
-            {theme === "dark" ? "🌙 Dark" : "☀️ Light"}
-          </button>
+      <button
+        onClick={toggleTheme}
+        className="btn"
+        style={{ padding: "8px 10px" }}
+      >
+        {theme === "dark" ? "🌙 Dark" : "☀️ Light"}
+      </button>
 
-          {/* Open thresholds panel */}
-          <button onClick={() => setPanelOpen((s) => !s)} className="btn" style={{ padding: "8px 10px" }}>
-            {panelOpen ? "Close Alerts" : "Alert Settings"}
-          </button>
-        </div>
-      </header>
+      <button
+        onClick={() => setPanelOpen((s) => !s)}
+        className="btn"
+        style={{ padding: "8px 10px" }}
+      >
+        {panelOpen ? "Close Alerts" : "Alert Settings"}
+      </button>
+
+      <button
+        className="btn"
+        onClick={() => {
+          setWallboard(true);
+          if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen();
+          }
+        }}
+      >
+        🖥 Wallboard
+      </button>
+    </div>
+  </header>
+)}
+
+{/* 🔴🟡🟢 HEALTH SUMMARY STRIP */}
+<div
+  style={{
+    margin: "12px 16px",
+    padding: "12px 16px",
+    borderRadius: 10,
+    fontWeight: 600,
+    display: "flex",
+    alignItems: "center",
+    gap: 12,
+    background:
+      healthStatus === "breached"
+        ? "#fee2e2"
+        : healthStatus === "watch"
+        ? "#fef3c7"
+        : "#dcfce7",
+    color:
+      healthStatus === "breached"
+        ? "#991b1b"
+        : healthStatus === "watch"
+        ? "#92400e"
+        : "#065f46",
+  }}
+>
+  {healthStatus === "healthy" && "🟢 System Healthy — All metrics within limits"}
+  {healthStatus === "watch" && "🟡 Watch — Some metrics need attention"}
+  {healthStatus === "breached" && "🔴 Breached — Immediate action required"}
+</div>
+
 
       <main className="metrics-grid-wrap">
         <div className="metrics-grid">
