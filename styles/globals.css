@@ -89,36 +89,38 @@ body {
    ========================= */
 @media (max-width: 768px) {
 
-  /* Tile container spacing */
+  /* Ensure tile respects phone width */
   .metric-tile {
+    max-width: 100%;
+    overflow: hidden;
     padding: 12px 14px;
-    min-height: auto;
   }
 
-  /* Metric value (big number in center) */
+  /* Big number: responsive to card width */
   .metric-tile .metric-value {
-    font-size: 28px;      /* ↓ from desktop size */
-    line-height: 1.2;
-    margin: 4px 0;
+    font-size: clamp(22px, 7.5vw, 30px);
+    line-height: 1.15;
+    max-width: 100%;
+    white-space: normal;
+    word-break: break-word;
+    text-align: center;
   }
 
-  /* Percent / unit next to value */
+  /* Unit (% / s / m) */
   .metric-tile .metric-unit {
-    font-size: 16px;
+    font-size: 0.6em;
   }
 
-  /* Metric title */
+  /* Labels */
   .metric-tile .metric-label {
     font-size: 13px;
     line-height: 1.3;
   }
 
-  /* Updated timestamp */
   .metric-tile .metric-updated {
     font-size: 11px;
   }
 
-  /* Delta (right side) */
   .metric-tile .metric-delta {
     font-size: 12px;
   }
