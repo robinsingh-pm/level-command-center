@@ -1,6 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import MetricTile from "../components/MetricTile";
-import MetricTrendChart from "../components/MetricTrendChart";
+import dynamic from "next/dynamic";
+
+const MetricTrendChart = dynamic(
+  () => import("../components/MetricTrendChart"),
+  { ssr: false }
+);
 
 
 /*
