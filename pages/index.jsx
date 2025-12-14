@@ -1,11 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import MetricTile from "../components/MetricTile";
-import dynamic from "next/dynamic";
-
-const MetricTrendChart = dynamic(
-  () => import("../components/MetricTrendChart"),
-  { ssr: false }
-);
+import MetricTrendChart from "../components/MetricTrendChart";
 
 
 /*
@@ -24,7 +19,7 @@ const ORDER = [
   "aht_seconds",
   "frt_seconds",
   "crt_minutes",
-  "icsat_pct",
+  "manual_eval_pct",
   "manual_qa_pct",
   "coaching_today",
 ];
@@ -206,81 +201,140 @@ export default function Home() {
     if (name === "subtle") soundPlayer.playSubtle();
   }
 
-  // fetch + compute + check thresholds & play sounds
-  async function fetchAndCompute() {
-    try {
-      const res = await fetch("/api/dashboard");
-      const json = await res.json();
-      if (!mountedRef.current) return;
-      setPayload(json);
+// Demo fallback so tiles keep refreshing when API misses a metric
+function getDemoFallbackValue(id, prev) {
+  let min = 0;
+  let max = 100;
 
-      const fetchTime = Date.now();
-      lastFetchRef.current = fetchTime;
-
-      const currentMap = {};
-      (json.metrics || []).forEach((m) => {
-        currentMap[m.id] = typeof m.value === "number" ? m.value : (m.value ? Number(m.value) : 0);
-      });
-
-      const prevMap = readPrevMap();
-
-      const computed = ORDER.map((id) => {
-        const curr = id in currentMap ? currentMap[id] : 0;
-        const prevRaw = prevMap && (id in prevMap) ? prevMap[id] : null;
-        const prev = prevRaw === null || prevRaw === undefined ? null : Number(prevRaw);
-
-        const delta = (prev === null) ? null : Number((curr - prev).toFixed(2));
-        const pct = (prev === null || prev === 0) ? null : Number((((curr - prev) / Math.abs(prev)) * 100).toFixed(2));
-
-        const apiMetric = (json.metrics || []).find(m => m.id === id) || {};
-        const direction = apiMetric.direction || (String(id).includes("aht") || String(id).includes("frt") || String(id).includes("crt") ? "lowerIsBetter" : "higherIsBetter");
-
-        let deltaSign = null;
-        if (delta !== null && delta !== 0) {
-          const increased = delta > 0;
-          const isGood = direction === "higherIsBetter" ? increased : !increased;
-          deltaSign = isGood ? "good" : "bad";
-        }
-
-        // decide if sound should play (value changed AND threshold crossed)
-        let shouldPlay = false;
-        if (prev !== null && delta !== null && delta !== 0) {
-          shouldPlay = checkThreshold(id, prev, curr);
-        }
-
-        return {
-          id,
-          label: labelForId(id),
-          value: curr,
-          unit: apiMetric.unit || "",
-          direction,
-          delta,
-          pct,
-          deltaSign,
-          lastUpdatedAt: fetchTime,
-          shouldPlay,
-        };
-      });
-
-      // persist current map
-      savePrevMap(currentMap);
-
-      // update UI
-      setRows(computed);
-
-      // trigger sounds for those that shouldPlay; play once per fetch
-      computed.forEach((m) => {
-        if (m.shouldPlay) {
-          const cfg = thresholds[m.id];
-          const sound = cfg && cfg.onCross ? cfg.onCross : null;
-          if (sound) playSoundByName(sound);
-        }
-      });
-
-    } catch (e) {
-      console.error("fetchAndCompute error", e);
-    }
+  if (id === "manual_eval_pct") {
+    min = 40;
+    max = 90;
   }
+
+  if (id === "manual_qa_pct") {
+    min = 70;
+    max = 95;
+  }
+
+  if (id === "coaching_today") {
+    min = 0;
+    max = 20;
+  }
+
+  if (id === "conversations_today") {
+    min = 80;
+    max = 400;
+  }
+
+  if (id.includes("aht") || id.includes("frt") || id.includes("crt")) {
+    min = 1;
+    max = 10;
+  }
+
+  const base = prev ?? Math.round((min + max) / 2);
+  const variation = Math.round((Math.random() - 0.5) * (max - min) * 0.08);
+
+  return Math.max(min, Math.min(max, base + variation));
+}
+// fetch + compute + check thresholds & play sounds
+async function fetchAndCompute() {
+  try {
+    const res = await fetch("/api/dashboard");
+    const json = await res.json();
+    if (!mountedRef.current) return;
+    setPayload(json);
+
+    const fetchTime = Date.now();
+    lastFetchRef.current = fetchTime;
+
+    const currentMap = {};
+    (json.metrics || []).forEach((m) => {
+      currentMap[m.id] =
+        typeof m.value === "number" ? m.value : Number(m.value || 0);
+    });
+
+    const prevMap = readPrevMap();
+
+    const computed = ORDER.map((id) => {
+      const prevRaw = prevMap && id in prevMap ? prevMap[id] : null;
+      const prev =
+        prevRaw === null || prevRaw === undefined ? null : Number(prevRaw);
+
+let curr;
+
+if (id in currentMap) {
+  curr = currentMap[id];
+} else {
+  curr = getDemoFallbackValue(id, prev);
+  currentMap[id] = curr; // ✅ THIS IS THE FIX
+}
+
+
+      const delta =
+        prev === null ? null : Number((curr - prev).toFixed(2));
+
+      const pct =
+        prev === null || prev === 0
+          ? null
+          : Number((((curr - prev) / Math.abs(prev)) * 100).toFixed(2));
+
+      const apiMetric =
+        (json.metrics || []).find((m) => m.id === id) || {};
+
+      const direction =
+        apiMetric.direction ||
+        (id.includes("aht") ||
+        id.includes("frt") ||
+        id.includes("crt")
+          ? "lowerIsBetter"
+          : "higherIsBetter");
+
+      let deltaSign = null;
+      if (delta !== null && delta !== 0) {
+        const increased = delta > 0;
+        const isGood =
+          direction === "higherIsBetter" ? increased : !increased;
+        deltaSign = isGood ? "good" : "bad";
+      }
+
+      let shouldPlay = false;
+      if (prev !== null && delta !== null && delta !== 0) {
+        shouldPlay = checkThreshold(id, prev, curr);
+      }
+
+      return {
+        id,
+        label: labelForId(id),
+        value: curr,
+        unit:
+  id === "manual_eval_pct"
+    ? "%"
+    : id === "manual_qa_pct"
+    ? ""
+    : apiMetric.unit || "",
+        direction,
+        delta,
+        pct,
+        deltaSign,
+        lastUpdatedAt: fetchTime,
+        shouldPlay,
+      };
+    });
+
+    savePrevMap(currentMap);
+    setRows(computed);
+
+    computed.forEach((m) => {
+      if (m.shouldPlay) {
+        const cfg = thresholds[m.id];
+        if (cfg?.onCross) playSoundByName(cfg.onCross);
+      }
+    });
+  } catch (e) {
+    console.error("fetchAndCompute error", e);
+  }
+}
+
 
   // threshold editor helpers
   const setThresholdFor = (id, obj) => {
@@ -509,15 +563,34 @@ export default function Home() {
 
 function labelForId(id) {
   switch (id) {
-    case "conversations_today": return "Conversations Today";
-    case "eval_completion_pct": return "Evaluation Completion %";
-    case "instascore_pct": return "Instascore %";
-    case "aht_seconds": return "Handling Time (s)";
-    case "frt_seconds": return "First Response Time (s)";
-    case "crt_minutes": return "Case Resolution Time (m)";
-    case "icsat_pct": return "iCSAT (%)";
-    case "manual_qa_pct": return "Manual QA Score (%)";
-    case "coaching_today": return "Coaching Sessions Today";
-    default: return id;
+    case "conversations_today":
+      return "Conversations Ingested Today";
+
+    case "eval_completion_pct":
+      return "% of Evaluations Completed";
+
+    case "instascore_pct":
+      return "% of Conversations Instascored";
+
+    case "aht_seconds":
+      return "Handling Time (s)";
+
+    case "frt_seconds":
+      return "First Response Time (s)";
+
+    case "crt_minutes":
+      return "Case Resolution Time (m)";
+
+    case "manual_eval_pct":
+      return "% of Conversations Manually Evaluated";
+
+    case "manual_qa_pct":
+      return "Average QA Score";
+
+    case "coaching_today":
+      return "Coaching Sessions Today";
+
+    default:
+      return id;
   }
 }
