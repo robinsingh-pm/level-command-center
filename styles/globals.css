@@ -166,31 +166,38 @@ body {
 }
 
 /* =========================
-   MOBILE CHART HARD LOCK
+   MOBILE CHART HARD FIX
+   DO NOT TOUCH DESKTOP
    ========================= */
 @media (max-width: 768px) {
 
-  /* Chart outer section (page-level) */
-  .trend-section,
-  .chart-section,
-  .chart-container {
-    width: 100%;
-    max-width: 100%;
+  /* Prevent horizontal overflow on iOS */
+  html, body {
     overflow-x: hidden;
   }
 
-  /* Chart box itself */
+  /* Chart section wrapper (outermost) */
+  .trend-section,
+  .chart-section,
+  .metrics-chart,
+  .chart-container {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  /* Chart card / modal content */
   .trend-chart,
   .chart-wrapper {
     width: 100%;
-    height: 260px;            /* ✅ HARD HEIGHT */
-    max-height: 260px;
-    min-height: 260px;
+    height: 160px;        /* 🔒 LOCKED HEIGHT */
+    min-height: 160px;
+    max-height: 160px;
     overflow: hidden;
     position: relative;
   }
 
-  /* SVG / Canvas must obey parent */
+  /* Force chart itself to stay inside */
   .trend-chart svg,
   .trend-chart canvas,
   .chart-wrapper svg,
@@ -200,7 +207,6 @@ body {
     max-height: 100% !important;
   }
 }
-
 
 .title { font-size:1.15rem; font-weight:700; color: var(--toggle-fg); }
 .meta { color: var(--muted); font-size:0.9rem; }
