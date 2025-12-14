@@ -49,6 +49,11 @@ function generateDemoTrend({ metricId, unit, limit }) {
     const variation = Math.round((Math.random() - 0.5) * (max - min) * 0.1);
     current = Math.max(min, Math.min(max, current + variation));
 
+// ✅ HARD CLAMP FOR PERCENTAGE METRICS
+if (unit === "%") {
+  current = Math.min(100, Math.max(0, current));
+}
+
     points.push({
       time: new Date(now - i * 5 * 60 * 1000).toLocaleTimeString([], {
         hour: "2-digit",
