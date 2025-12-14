@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import MetricTile from "../components/MetricTile";
+import MetricTrendChart from "../components/MetricTrendChart";
+
 
 /*
   Page with:
@@ -83,6 +85,8 @@ export default function Home() {
   const mountedRef = useRef(true);
   const [theme, setTheme] = useState("light");
   const lastFetchRef = useRef(Date.now());
+  const [trendOpen, setTrendOpen] = useState(false);
+  const [selectedMetric, setSelectedMetric] = useState(null);
 
   // sound & mute
   const mutedRef = useRef(false);
@@ -342,6 +346,10 @@ export default function Home() {
               deltaPct={r.pct}
               deltaSign={r.deltaSign}
               lastUpdatedAt={r.lastUpdatedAt}
+              onClick={() => {
+                setSelectedMetric(r);
+                setTrendOpen(true);
+              }}
             />
           ))}
         </div>
@@ -439,6 +447,57 @@ export default function Home() {
           </div>
         </div>
       </aside>
+      {/* ✅ ADD THIS BLOCK EXACTLY HERE */}
+      {trendOpen && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.5)",
+            zIndex: 9999,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+          onClick={() => setTrendOpen(false)}
+        >
+<div
+  style={{
+    background: "var(--card-bg)",
+    padding: 24,
+    borderRadius: 12,
+    minWidth: 1000,
+    maxWidth: 1200, // ⬅️ increases chart length from outside
+  }}
+  onClick={(e) => e.stopPropagation()}
+>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginBottom: 12,
+              }}
+            >
+              <div style={{ fontWeight: 700 }}>
+                {selectedMetric?.label}
+              </div>
+              <button className="btn" onClick={() => setTrendOpen(false)}>
+                Close
+              </button>
+            </div>
+
+
+<MetricTrendChart
+  metricId={selectedMetric.id}
+  label={selectedMetric.label}
+  unit={selectedMetric.unit}
+  threshold={thresholds[selectedMetric.id]}
+  range="today"
+/>
+           
+          </div>
+        </div>
+      )}
     </div>
   );
 }
