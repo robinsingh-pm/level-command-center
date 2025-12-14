@@ -119,6 +119,51 @@ body {
   }
 }
 
+/* =========================
+   MOBILE CARD FIX (REAL)
+   ========================= */
+@media (max-width: 768px) {
+
+  /* Card container */
+  .metric-card {
+    padding: 16px 14px;
+    min-height: 110px;
+  }
+
+  /* Center area holding the number */
+  .metric-body {
+    min-height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Main metric number */
+  .metric-number {
+    font-size: clamp(20px, 6vw, 26px);
+    line-height: 1.15;
+    max-width: 100%;
+    text-align: center;
+    white-space: normal;
+    word-break: break-word;
+  }
+
+  .metric-title {
+    font-size: 13px;
+    line-height: 1.3;
+  }
+
+  .updated-text {
+    font-size: 11px;
+  }
+
+  .delta-good,
+  .delta-bad,
+  .delta-neutral {
+    font-size: 12px;
+  }
+}
+
 
 /* =========================
    MOBILE TREND CHART — FULL WIDTH FIX
